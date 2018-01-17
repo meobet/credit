@@ -3,17 +3,14 @@ from __future__ import print_function, division
 import numpy as np
 from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
 from sklearn.metrics import confusion_matrix, classification_report
+from metrics import mean_absolute_error
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import GradientBoostingClassifier
 from xgboost import XGBClassifier
-from sklearn.utils.class_weight import compute_sample_weight
-
 from selection import select_xy
 from support import load_cv, run_test, resample
 from keras_classifier import LSTMClassifier, CNNClassifier
 from sk_classifier import SkClassifier
-from staged_classifier import AugmentedClassifier, ThresholdClassifier
+from staged_classifier import Type0v3Classifier, Type0v123Classifier, Combo1Classifier
 
 import matplotlib
 # matplotlib.use("Agg")
@@ -51,10 +48,10 @@ if __name__ == "__main__":
     # classifier.fit(x_train, y_train)
     # classifier.save("data/cnn03.model")
 
-    classifier = SkClassifier(XGBClassifier(), sampler=RandomOverSampler())
-    classifier.fit(x_train, y_train)
-    print(confusion_matrix(y_true=y_test, y_pred=classifier.predict(x_test)))
-    print(classification_report(y_true=y_test, y_pred=classifier.predict(x_test)))
+    # classifier = SkClassifier(XGBClassifier(), sampler=RandomOverSampler())
+    # classifier.fit(x_train, y_train)
+    # print(confusion_matrix(y_true=y_test, y_pred=classifier.predict(x_test)))
+    # print(classification_report(y_true=y_test, y_pred=classifier.predict(x_test)))
 
     print("__________________")
 
@@ -79,8 +76,13 @@ if __name__ == "__main__":
     # classifier = SkClassifier(XGBClassifier(), sampler=RandomOverSampler())
     # classifier.fit(x_train, y_train)
 
-    classifier = ThresholdClassifier(base_classifier=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()))
+    classifier = Combo1Classifier(base=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
+                                  aux=[SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
+                                       SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
+                                       SkClassifier(XGBClassifier(), sampler=RandomOverSampler())])
     classifier.fit(x_train, y_train)
 
-    print(confusion_matrix(y_true=y_test, y_pred=classifier.predict(x_test)))
-    print(classification_report(y_true=y_test, y_pred=classifier.predict(x_test)))
+    y = classifier.predict(x_test)
+    print(confusion_matrix(y_true=y_test, y_pred=y))
+    print(classification_report(y_true=y_test, y_pred=y))
+    print(mean_absolute_error(y_true=y_test, y_pred=y))
