@@ -4,7 +4,7 @@ from collections import defaultdict
 import numpy as np
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.utils.class_weight import compute_sample_weight
-from sklearn.metrics import confusion_matrix, recall_score
+from sklearn.metrics import confusion_matrix, recall_score, average_precision_score
 
 from vae import create_lstm_vae
 
@@ -19,7 +19,7 @@ def load(x_file, y_file):
 
 # cross-validation split
 def split_cv(x, y, k=5):
-    splitter = StratifiedKFold(n_splits=k)
+    splitter = StratifiedKFold(n_splits=k, shuffle=True)
     result = []
     for train, test in splitter.split(x, y):
         result.append((x[train], x[test], y[train], y[test]))
@@ -89,7 +89,8 @@ def run_test(x_train, x_test, y_train, y_test, classifier, flatten):
     classifier.fit(x_train, y_train, sample_weight=sample_weight)
     y_pred = classifier.predict(x_test)
     return (confusion_matrix(y_true=y_test, y_pred=y_pred),
-                   recall_score(y_true=y_test, y_pred=y_pred, labels=np.arange(4), average=None))
+            recall_score(y_true=y_test, y_pred=y_pred, labels=np.arange(4), average=None),
+            average_precision_score(y_true=y_test, y_pred=y_pred, labels=np.arange(4), average=None))
 
 
 # run test_function on cross-validation data
@@ -105,9 +106,7 @@ def run_cv(filename, preprocessor, classifiers, flatten=True):
     for classifier in classifiers:
         print(type(classifier))
         output = result[classifier]
-        for i in range(len(output[0])):
-            if output[0][i].ndim == 2:
-                print(np.sum([score[i] for score in output], axis=0))
-            else:
-                print(np.mean([score[i] for score in output], axis=0))
-        print()
+        print(np.sum([score[0] for score in output], axis=0))
+        print("Recall:", np.mean([score[1] for score in output], axis=0))
+        print("Average precision:", np.mean([score[2] for score in output], axis=0))
+    print()
