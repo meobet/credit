@@ -6,7 +6,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 from metrics import mean_absolute_error
 
 from xgboost import XGBClassifier
-from selection import select_xy
+from selection import select_xy, convert_xy
 from support import load_cv, run_test, resample
 from keras_classifier import LSTMClassifier, CNNClassifier
 from sk_classifier import SkClassifier
@@ -20,33 +20,11 @@ if __name__ == "__main__":
     x_train, x_test, y_train, y_test = load_cv("data/cv5.2.npz")[4]
     xs = [select_xy(x_train, y_train, [i])[0] for i in range(4)]
 
-    x_train_03, y_train_03 = select_xy(x_train, y_train, [0, 3])
-    x_test_03, y_test_03 = select_xy(x_test, y_test, [0, 3])
+    # x_train_, y_train_ = select_xy(x_train, y_train, [1, 2])
+    # x_test_, y_test_ = select_xy(x_test, y_test, [1, 2])
 
-    # classifier = LSTMClassifier(lstm_dims=[100, 200],
-    #                             dense_dims=[200, 100],
-    #                             epochs=100,
-    #                             validation=0.2,
-    #                             dropout=0.1,
-    #                             verbose=2,
-    #                             patience=10,
-    #                             sampler=RandomOverSampler())
-    # classifier.fit(x_train, y_train)
-    # classifier.save("data/lstm03.model")
-
-    # classifier = CNNClassifier(conv_dims=[200, 200, 100, 100],
-    #                            conv_kernels=[3, 3, 3, 3],
-    #                            pool_sizes=[2, 2, 2, 2],
-    #                            dense_dims=[50, 50],
-    #                            epochs=100,
-    #                            validation=0.2,
-    #                            dropout=0.1,
-    #                            verbose=2,
-    #                            patience=10,
-    #                            criterion="val_acc",
-    #                            sampler=SMOTE())
-    # classifier.fit(x_train, y_train)
-    # classifier.save("data/cnn03.model")
+    x_train_, y_train_ = convert_xy(x_train, y_train, [0, 1, 1, 0])
+    x_test_, y_test_ = convert_xy(x_test, y_test, [0, 1, 1, 0])
 
     # classifier = SkClassifier(XGBClassifier(), sampler=RandomOverSampler())
     # classifier.fit(x_train, y_train)
@@ -55,11 +33,11 @@ if __name__ == "__main__":
 
     print("__________________")
 
-    # classifier = SkClassifier(XGBClassifier(), sampler=RandomOverSampler())
-    # classifier.fit(x_train_03, y_train_03)
-    #
-    # print(classification_report(y_true=y_train_03, y_pred=classifier.predict(x_train_03)))
-    # print(classification_report(y_true=y_test_03, y_pred=classifier.predict(x_test_03)))
+    classifier = SkClassifier(XGBClassifier(), sampler=RandomOverSampler())
+    classifier.fit(x_train_, y_train_)
+
+    print(classification_report(y_true=y_train_, y_pred=classifier.predict(x_train_)))
+    print(classification_report(y_true=y_test_, y_pred=classifier.predict(x_test_)))
     #
     # ps = [classifier.predict_proba(x)[:, 1] for x in xs]
     # for p in ps:
@@ -76,13 +54,13 @@ if __name__ == "__main__":
     # classifier = SkClassifier(XGBClassifier(), sampler=RandomOverSampler())
     # classifier.fit(x_train, y_train)
 
-    classifier = Combo1Classifier(base=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
-                                  aux=[SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
-                                       SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
-                                       SkClassifier(XGBClassifier(), sampler=RandomOverSampler())])
-    classifier.fit(x_train, y_train)
-
-    y = classifier.predict(x_test)
-    print(confusion_matrix(y_true=y_test, y_pred=y))
-    print(classification_report(y_true=y_test, y_pred=y))
-    print(mean_absolute_error(y_true=y_test, y_pred=y))
+    # classifier = Combo1Classifier(base=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
+    #                               aux=[SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
+    #                                    SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
+    #                                    SkClassifier(XGBClassifier(), sampler=RandomOverSampler())])
+    # classifier.fit(x_train, y_train)
+    #
+    # y = classifier.predict(x_test)
+    # print(confusion_matrix(y_true=y_test, y_pred=y))
+    # print(classification_report(y_true=y_test, y_pred=y))
+    # print(mean_absolute_error(y_true=y_test, y_pred=y))
