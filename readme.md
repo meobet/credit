@@ -8,11 +8,10 @@ This file can be loaded with support.load_cv().
 ### Running experiments
 See the main loop in simple.py.
 
-Choose a list classifiers (sklearn format).
+The classifiers should be any type in keras_classifier.py (they are subclasses of KerasClassifier)
+or SkClassifier (which should be constructed with a sklearn or xgboost classifier).
 
-Make a list of flatten variables, one value for each classifier.
-Flatten value is True if the classifier takes 2D input, False if the classifier takes 3D input (like LSTM).
+Both KerasClassifier and SkClassifier have the same interface, and can be constructed with an
+imblearn resampler.
 
-Choose resamplers (imblearn format) and write a preprocessor function - see prep_resampler() in simple.py.
-
-Run support.run_cv(), which returns the confusion matrix and recall for each class.
+The AugmentedClassifier can wrap any KerasClassifier or SkClassifier.

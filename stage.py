@@ -13,7 +13,7 @@ from selection import select_xy
 from support import load_cv, run_test, resample
 from keras_classifier import LSTMClassifier, CNNClassifier
 from sk_classifier import SkClassifier
-from staged_classifier import AugmentedClassifier
+from staged_classifier import AugmentedClassifier, ThresholdClassifier
 
 import matplotlib
 # matplotlib.use("Agg")
@@ -60,16 +60,16 @@ if __name__ == "__main__":
 
     # classifier = SkClassifier(XGBClassifier(), sampler=RandomOverSampler())
     # classifier.fit(x_train_03, y_train_03)
-
+    #
     # print(classification_report(y_true=y_train_03, y_pred=classifier.predict(x_train_03)))
     # print(classification_report(y_true=y_test_03, y_pred=classifier.predict(x_test_03)))
-
+    #
     # ps = [classifier.predict_proba(x)[:, 1] for x in xs]
     # for p in ps:
     #     print(np.percentile(p, 20), np.percentile(p, 80))
     # plt.boxplot(ps)
     # plt.show()
-
+    #
     # input_dim = x_train.shape[-1]
     # xp = classifier.predict_proba(x_train)[:, 1]
     # x_train = np.hstack([np.repeat(xp, input_dim).reshape(-1, 1, input_dim), x_train])
@@ -79,8 +79,7 @@ if __name__ == "__main__":
     # classifier = SkClassifier(XGBClassifier(), sampler=RandomOverSampler())
     # classifier.fit(x_train, y_train)
 
-    classifier = AugmentedClassifier(base_classifier=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
-                                     aux_classifier=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()))
+    classifier = ThresholdClassifier(base_classifier=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()))
     classifier.fit(x_train, y_train)
 
     print(confusion_matrix(y_true=y_test, y_pred=classifier.predict(x_test)))

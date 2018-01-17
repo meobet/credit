@@ -1,10 +1,11 @@
 from __future__ import print_function, division
 
+import argparse
 import numpy as np
 from xgboost import XGBClassifier
 from sk_classifier import SkClassifier
 from keras_classifier import CNNClassifier
-from staged_classifier import AugmentedClassifier
+from staged_classifier import AugmentedClassifier, ThresholdClassifier
 
 from imblearn.over_sampling import SMOTE, ADASYN, RandomOverSampler
 
@@ -24,7 +25,12 @@ def prep_vae(x_train, x_test, y_train, y_test, sampler=None):
 
 
 if __name__ == "__main__":
-    classifiers = [SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
+    parser = argparse.ArgumentParser("Running cross-validation")
+    parser.add_argument("-cv", "--cv-file", type=str, default="data/cv5.npz", help="Cross-validation data file")
+    args = parser.parse_args()
+
+    classifiers = [ThresholdClassifier(base_classifier=SkClassifier(XGBClassifier(), sampler=RandomOverSampler())),
                    AugmentedClassifier(base_classifier=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
                                        aux_classifier=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()))]
-    run_cv("data/cv5.npz", classifiers=classifiers)
+    run_cv(args.cv_file, classifiers=classifiers)
+

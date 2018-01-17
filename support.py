@@ -104,5 +104,6 @@ def run_cv(filename, classifiers, preprocessor=None):
         output = result[classifier]
         print(np.sum([score[0] for score in output], axis=0))
         print("Recall:", np.mean([score[1] for score in output], axis=0))
-        print("MAE:", np.mean([score[2] for score in output], axis=0))
+        print("MAE:", np.mean([score[2] for score in output], axis=0),
+              "Macro-MAE:", np.mean([score[2] for score in output]))
     print()
