@@ -100,3 +100,19 @@ class Combo1Classifier(AugmentedClassifier):
         self.aux[0].fit(*select_xy(x, y, [0, 3]))
         self.aux[1].fit(*convert_xy(x, y, [0, 1, 1, 1]))
         self.aux[2].fit(*convert_xy(x, y, [0, 0, 1, 1]))
+
+
+class StructuredClassifier(AugmentedClassifier):
+    def fit(self, x, y, sample_weight=None):
+        if self.sampler is not None:
+            x, y = resample(self.sampler, x, y)
+        self.aux[0].fit(*convert_xy(x, y, [0, 1, 1, 1]))
+        self.aux[1].fit(*select_xy(x, y, [1, 2, 3]))
+
+    def predict(self, x):
+        y_0 = self.aux[0].predict(x)
+        y_123 = self.aux[1].predict(x)
+        return np.where(y_0 == 0, y_0, y_123)
+
+    def predict_proba(self, x):
+        raise NotImplementedError()

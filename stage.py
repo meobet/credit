@@ -26,16 +26,15 @@ def main(x_train, x_test, y_train, y_test):
 
     x_train_, y_train_ = x_train, y_train
     x_train_, y_train_ = resample(RandomOverSampler(), x_train_, y_train_)
-    # x_train_, y_train_ = select_xy(x_train_, y_train_, [0, 1, 2])
-    x_train_, y_train_ = convert_xy(x_train_, y_train_, [0, 1, 1, 1])
-    x_test_, y_test_ = convert_xy(x_test, y_test, [0, 1, 2, 3])
+    x_train_, y_train_ = select_xy(x_train_, y_train_, [1, 2, 3])
+    x_train_, y_train_ = convert_xy(x_train_, y_train_, [1, 1, 2])
+    x_test_, y_test_ = convert_xy(x_test, y_test, [0, 1, 1, 2])
 
     # classifier = SkClassifier(XGBClassifier(), sampler=RandomOverSampler())
     # classifier.fit(x_train, y_train)
     # print(confusion_matrix(y_true=y_test, y_pred=classifier.predict(x_test)))
     # print(classification_report(y_true=y_test, y_pred=classifier.predict(x_test)))
 
-    GradientBoostingClassifier().fit(x, y)
     classifier = SkClassifier(XGBClassifier(), sampler=None)
     classifier.fit(x_train_, y_train_)
 
