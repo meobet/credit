@@ -26,6 +26,7 @@ class KerasClassifier(object):
         self.verbose = verbose
         self.checkpoint = "data/keras.{epoch:02d}.model"
         self.sampler = sampler
+        self.name = type(self).__name__
 
     def build(self, input_dim, timesteps, output_dim):
         raise NotImplementedError()

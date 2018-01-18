@@ -1,14 +1,17 @@
 import numpy as np
 from selection import select_xy, convert_xy
-
+from support import resample
 
 class AugmentedClassifier(object):
-    def __init__(self, base, aux):
+    def __init__(self, base, aux, sampler=None):
         self.model = base
         self.aux = aux
         self.name = type(self).__name__ + "[" + base.name + "]"
+        self.sampler = sampler
 
     def fit(self, x, y, sample_weight=None):
+        if self.sampler is not None:
+            x, y = resample(self.sampler, x, y)
         self.fit_aux(x, y)
         input_dim = x.shape[-1]
         x_aux = [np.repeat(classifier.predict_proba(x)[:, 1], input_dim).reshape(-1, 1, input_dim)

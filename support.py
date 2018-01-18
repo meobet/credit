@@ -100,10 +100,18 @@ def run_cv(filename, classifiers, preprocessor=None):
         for classifier in classifiers:
             result[classifier].append(run_test(*datasets, classifier=classifier))
     for classifier in classifiers:
-        print(type(classifier))
+        print(classifier.name)
         output = result[classifier]
         print(np.sum([score[0] for score in output], axis=0))
         print("Recall:", np.mean([score[1] for score in output], axis=0))
         print("MAE:", np.mean([score[2] for score in output], axis=0),
               "Macro-MAE:", np.mean([score[2] for score in output]))
     print()
+
+
+def apply_cv(filename, function, get_result=False):
+    data = load_cv(filename)
+    result = [function(*datasets) for datasets in data]
+    if get_result:
+        for i in range(len(result[0])):
+            print(np.mean([r[i] for r in result], axis=0))

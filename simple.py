@@ -5,7 +5,7 @@ import numpy as np
 from xgboost import XGBClassifier
 from sk_classifier import SkClassifier
 from keras_classifier import CNNClassifier
-from staged_classifier import Combo1Classifier, Type0v123Classifier
+from staged_classifier import Combo1Classifier, Type0v123Classifier, Type01v23Classifier, Type0v3Classifier
 
 from imblearn.over_sampling import SMOTE, ADASYN, RandomOverSampler
 
@@ -27,10 +27,18 @@ if __name__ == "__main__":
     parser.add_argument("-cv", "--cv-file", type=str, default="data/cv5.npz", help="Cross-validation data file")
     args = parser.parse_args()
 
-    classifiers = [Type0v123Classifier(base=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
-                                       aux=[SkClassifier(XGBClassifier(), sampler=RandomOverSampler())]),
-                   Combo1Classifier(base=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
-                                    aux=[SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
-                                         SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
-                                         SkClassifier(XGBClassifier(), sampler=RandomOverSampler())])]
+    classifiers = [Type0v3Classifier(base=SkClassifier(XGBClassifier()),
+                                     aux=[SkClassifier(XGBClassifier())],
+                                     sampler=RandomOverSampler()),
+                   Type01v23Classifier(base=SkClassifier(XGBClassifier()),
+                                       aux=[SkClassifier(XGBClassifier())],
+                                       sampler=RandomOverSampler()),
+                   Type0v123Classifier(base=SkClassifier(XGBClassifier()),
+                                       aux=[SkClassifier(XGBClassifier())],
+                                       sampler=RandomOverSampler()),
+                   Combo1Classifier(base=SkClassifier(XGBClassifier()),
+                                    aux=[SkClassifier(XGBClassifier()),
+                                         SkClassifier(XGBClassifier()),
+                                         SkClassifier(XGBClassifier())],
+                                    sampler=RandomOverSampler())]
     run_cv(args.cv_file, classifiers=classifiers)

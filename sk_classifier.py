@@ -8,6 +8,7 @@ class SkClassifier(object):
     def __init__(self, base_classifier, sampler=None):
         self.model = base_classifier
         self.sampler = sampler
+        self.name = type(base_classifier).__name__
 
     def fit(self, x, y, sample_weight=None):
         if self.sampler is not None:
