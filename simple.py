@@ -5,7 +5,7 @@ import numpy as np
 from xgboost import XGBClassifier
 from sk_classifier import SkClassifier
 from keras_classifier import CNNClassifier
-from staged_classifier import Combo1Classifier, Type0v123Classifier, StructuredClassifier
+from staged_classifier import AdjustedClassifier, Type0v123Classifier, StructuredClassifier, StructuredClassifier2
 
 from imblearn.over_sampling import SMOTE, ADASYN, RandomOverSampler
 
@@ -27,9 +27,14 @@ if __name__ == "__main__":
     parser.add_argument("-cv", "--cv-file", type=str, default="data/cv5.npz", help="Cross-validation data file")
     args = parser.parse_args()
 
-    classifiers = [Type0v123Classifier(base=SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
-                                       aux=[SkClassifier(XGBClassifier(), sampler=RandomOverSampler())]),
-                   StructuredClassifier(base=SkClassifier(XGBClassifier()),
-                                        aux=[SkClassifier(XGBClassifier())],
-                                        sampler=RandomOverSampler())]
+    classifiers = [SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
+                   AdjustedClassifier(Type0v123Classifier(base=SkClassifier(XGBClassifier(),
+                                                                            sampler=RandomOverSampler()),
+                                                          aux=[SkClassifier(XGBClassifier(),
+                                                                            sampler=RandomOverSampler())]),
+                                      adjust=np.array([-0.5, 0., 0.12, 0.])),
+                   StructuredClassifier2(base=AdjustedClassifier(SkClassifier(XGBClassifier()), adjust=[-0.2, 0]),
+                                         aux=[SkClassifier(XGBClassifier()),
+                                              SkClassifier(XGBClassifier())],
+                                         sampler=RandomOverSampler())]
     run_cv(args.cv_file, classifiers=classifiers)

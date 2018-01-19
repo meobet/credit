@@ -106,7 +106,7 @@ def run_cv(filename, classifiers, preprocessor=None):
         print("Recall:", np.mean([score[1] for score in output], axis=0))
         print("MAE:", np.mean([score[2] for score in output], axis=0),
               "Macro-MAE:", np.mean([score[2] for score in output]))
-    print()
+        print()
 
 
 def apply_cv(filename, function, get_result=False):
