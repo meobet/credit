@@ -8,8 +8,10 @@ This file can be loaded with support.load_cv().
 ### Running experiments
 See the main loop in simple.py.
 
-The classifiers should be any type in keras_classifier.py (they are subclasses of KerasClassifier)
-or SkClassifier (which should be constructed with a sklearn or xgboost classifier).
+For the latest model, import class StructuredClassifier from staged_classifier.py and
+use it like a normal sklearn classifier (but there is no predict_proba function).
+
+More notes:
 
 Both KerasClassifier and SkClassifier have the same interface, and can be constructed with an
 imblearn resampler.

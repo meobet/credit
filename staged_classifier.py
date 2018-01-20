@@ -1,6 +1,9 @@
 import numpy as np
 from selection import select_xy, convert_xy
 from support import resample
+from sk_classifier import SkClassifier
+from xgboost import XGBClassifier
+from imblearn.over_sampling import RandomOverSampler
 
 class AugmentedClassifier(object):
     def __init__(self, base, aux, sampler=None):
@@ -103,16 +106,21 @@ class Combo1Classifier(AugmentedClassifier):
 
 
 class StructuredClassifier(AugmentedClassifier):
+    def __init__(self):
+        self.aux = [AdjustedClassifier(Type0v123Classifier(base=(SkClassifier(XGBClassifier(), RandomOverSampler())),
+                                                           aux=[(SkClassifier(XGBClassifier(), RandomOverSampler()))]),
+                                       adjust=np.array([-0.5, 0, 0.15, 0]))]
+        self.model = AdjustedClassifier(SkClassifier(XGBClassifier(), RandomOverSampler()), adjust=[-0.25, 0])
+        self.name = type(self).__name__ + "[" + self.aux[0].name + "]"
+        
     def fit(self, x, y, sample_weight=None):
-        if self.sampler is not None:
-            x, y = resample(self.sampler, x, y)
-        self.aux[0].fit(*convert_xy(x, y, [0, 1, 1, 1]))
-        self.model.fit(*select_xy(x, y, [1, 2, 3]))
+        self.aux[0].fit(x, y)
+        self.model.fit(*select_xy(x, y, [1, 2]))
 
     def predict(self, x):
-        y_0 = self.aux[0].predict(x)
-        y_123 = self.model.predict(x)
-        return np.where(y_0 == 0, y_0, y_123)
+        y_03 = self.aux[0].predict(x)
+        y_12 = self.model.predict(x)
+        return np.where((y_03 == 0) | (y_03 == 3), y_03, y_12)
 
     def predict_proba(self, x):
         raise NotImplementedError()

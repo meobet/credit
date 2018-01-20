@@ -28,13 +28,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     classifiers = [SkClassifier(XGBClassifier(), sampler=RandomOverSampler()),
-                   AdjustedClassifier(Type0v123Classifier(base=SkClassifier(XGBClassifier(),
-                                                                            sampler=RandomOverSampler()),
-                                                          aux=[SkClassifier(XGBClassifier(),
-                                                                            sampler=RandomOverSampler())]),
-                                      adjust=np.array([-0.5, 0., 0.12, 0.])),
-                   StructuredClassifier2(base=AdjustedClassifier(SkClassifier(XGBClassifier()), adjust=[-0.2, 0]),
-                                         aux=[SkClassifier(XGBClassifier()),
-                                              SkClassifier(XGBClassifier())],
-                                         sampler=RandomOverSampler())]
+#                   AdjustedClassifier(Type0v123Classifier(base=SkClassifier(XGBClassifier(),
+#                                                                            sampler=RandomOverSampler()),
+#                                                          aux=[SkClassifier(XGBClassifier(),
+#                                                                            sampler=RandomOverSampler())]),
+#                                      adjust=np.array([-0.5, 0., 0.12, 0.])),
+#                   StructuredClassifier2(base=AdjustedClassifier(SkClassifier(XGBClassifier()), adjust=[-0.2, 0]),
+#                                         aux=[SkClassifier(XGBClassifier()),
+#                                              SkClassifier(XGBClassifier())],
+#                                         sampler=RandomOverSampler()),
+                   StructuredClassifier()]
     run_cv(args.cv_file, classifiers=classifiers)

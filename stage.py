@@ -12,7 +12,7 @@ from selection import select_xy, convert_xy
 from support import load_cv, run_test, resample, apply_cv
 from keras_classifier import LSTMClassifier, CNNClassifier
 from sk_classifier import SkClassifier
-from staged_classifier import Type0v3Classifier, Type0v123Classifier, AdjustedClassifier, StructuredClassifier2
+from staged_classifier import Type0v3Classifier, Type0v123Classifier, AdjustedClassifier, StructuredClassifier
 
 import matplotlib
 # matplotlib.use("Agg")
@@ -36,10 +36,7 @@ def main(x_train, x_test, y_train, y_test):
     # classifier = AdjustedClassifier(Type0v123Classifier(base=(SkClassifier(XGBClassifier(), RandomOverSampler())),
     #                                                     aux=[(SkClassifier(XGBClassifier(), RandomOverSampler()))]),
     #                                 adjust=np.array([-0.5, 0, 0.15, 0]))
-    classifier = StructuredClassifier2(base=AdjustedClassifier(SkClassifier(XGBClassifier()), adjust=[-0.25, 0]),
-                                       aux=[SkClassifier(XGBClassifier()),
-                                            SkClassifier(XGBClassifier())],
-                                       sampler=RandomOverSampler())
+    classifier = StructuredClassifier()
 
     classifier.fit(x_train_, y_train_)
 
